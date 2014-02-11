@@ -50,7 +50,7 @@ map<uint256, map<uint256, CDataStream*> > mapOrphanTransactionsByPrev;
 // Constant stuff for coinbase transactions we create:
 CScript COINBASE_FLAGS;
 
-const string strMessageMagic = "SmallChange Signed Message:\n";
+const string strMessageMagic = "CannaCoin Signed Message:\n";
 
 double dHashesPerSec;
 int64 nHPSTimerStart;
@@ -828,19 +828,17 @@ uint256 static GetOrphanRoot(const CBlock* pblock)
 
 int64 static GetBlockValue(int nHeight, int64 nFees)
 {
-    int64 nSubsidy = 4 * COIN;
+    int64 nSubsidy = 420 * COIN;
 
 
-    if(nHeight < 17280) // no block reward within the first 3 days
-        nSubsidy = 0;
-    if(nHeight > 10519200) // no block reward after 5 years
-        nSubsidy = 0;
+    // Subsidy is cut in half every 500000 blocks, which will occur approximately every 6 months
+    nSubsidy >>= (nHeight / 500000);
 
     return nSubsidy + nFees;
 }
 
-static const int64 nTargetTimespan = 0.35 * 24 * 60 * 60; // SmallChange: 0.35 days
-static const int64 nTargetSpacing = 15; // SmallChange: 15 seconds
+static const int64 nTargetTimespan = 1 * 24 * 60 * 60; // CannaCoin: 1 days
+static const int64 nTargetSpacing = 30; // CannaCoin: 30 seconds
 static const int64 nInterval = nTargetTimespan / nTargetSpacing;
 
 // Thanks: Balthazar for suggesting the following fix
@@ -1184,7 +1182,7 @@ bool CTransaction::ConnectInputs(MapPrevTx inputs,
 {
     // Take over previous transactions' spent pointers
     // fBlock is true when this is called from AcceptBlock when a new best-block is added to the blockchain
-    // fMiner is true when called from the internal smallchange miner
+    // fMiner is true when called from the internal CannaCoin miner
     // ... both are false when called from CTransaction::AcceptToMemoryPool
     if (!IsCoinBase())
     {
@@ -1931,7 +1929,7 @@ bool CheckDiskSpace(uint64 nAdditionalBytes)
         string strMessage = _("Warning: Disk space is low");
         strMiscWarning = strMessage;
         printf("*** %s\n", strMessage.c_str());
-        uiInterface.ThreadSafeMessageBox(strMessage, "SmallChange", CClientUIInterface::OK | CClientUIInterface::ICON_EXCLAMATION | CClientUIInterface::MODAL);
+        uiInterface.ThreadSafeMessageBox(strMessage, "CannaCoin", CClientUIInterface::OK | CClientUIInterface::ICON_EXCLAMATION | CClientUIInterface::MODAL);
         StartShutdown();
         return false;
     }
@@ -2031,13 +2029,13 @@ bool LoadBlockIndex(bool fAllowNew)
         block.hashPrevBlock = 0;
         block.hashMerkleRoot = block.BuildMerkleTree();
         block.nVersion = 1;
-        block.nTime    = 1366559428;
+        block.nTime    = 1392105441;
         block.nBits    = 0x1e0ffff0;
         block.nNonce   = 2085386442;
 
         if (fTestNet)
         {
-            block.nTime    = 1366559428;
+            block.nTime    = 1392105441;
             block.nNonce   = 386402991;
         }
 
